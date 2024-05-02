@@ -61,7 +61,7 @@ func TestJimAndJokes(t *testing.T) {
 		}
 
 		result := jimAndJokes(inputs)
-		assert.Equal(t, result, 65141656)
+		assert.Equal(t, result, int32(65141656))
 	})
 }
 

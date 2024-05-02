@@ -5,69 +5,6 @@ import (
 	"strconv"
 )
 
-func jimAndJokes(inputs [][]int32) int32 {
-	dates := NewDates(inputs)
-
-	if !dates.CanJoke() {
-		return 0
-	}
-
-	return dates.JokesCount()
-}
-
-func reverseSlice(s []int32) []int32 {
-	for i := 0; i < len(s)/2; i++ {
-		j := len(s) - i - 1
-		s[i], s[j] = s[j], s[i]
-	}
-
-	return s
-}
-
-type Dates []Number
-
-func NewDates(dates [][]int32) Dates {
-	var result Dates
-
-	for _, date := range dates {
-		result = append(result, Number{Value: date[1], Base: date[0]})
-	}
-
-	return result
-}
-
-func (d Dates) CanJoke() bool {
-	for _, date := range d {
-		if !date.IsValid() {
-			return false
-		}
-	}
-
-	return true
-}
-
-func (d Dates) JokesCount() int32 {
-	var count int32
-
-	for i := 0; i < len(d)-1; i++ {
-		next, err := d[i+1].ConvertToBase(d[i].Base)
-		if err != nil {
-			return 0
-		}
-
-		current, err := d[i].ConvertToBase(d[i+1].Base)
-		if err != nil {
-			return 0
-		}
-
-		if current == next {
-			count++
-		}
-	}
-
-	return count
-}
-
 type Number struct {
 	Value int32
 	Base  int32
@@ -97,20 +34,27 @@ func (n Number) BaseValue() int32 {
 	return int32(result)
 }
 
-func (n Number) ConvertToBase(base int32) (int32, error) {
-	if !n.IsValid() {
-		return 0, fmt.Errorf("Number %d is not valid for base %d", n.Value, n.Base)
+func (n Number) ValueInDecimal() int32 {
+	if n.Base == 10 {
+		return n.Value
 	}
 
-	baseN := strconv.FormatInt(int64(n.BaseValue()), int(base))
+	strValue := strconv.Itoa(int(n.Value))
 
-	// convert string to int32
-	result, err := strconv.Atoi(baseN)
-	if err != nil {
-		return 0, err
+	result, _ := strconv.ParseInt(strValue, int(n.Base), 32)
+
+	return int32(result)
+}
+
+func (n Number) ConvertToBase(base int32) (string, error) {
+	if n.IsValid() && (base >= 2 && base <= 36) {
+		valueInDecimal64 := int64(n.ValueInDecimal())
+		result := strconv.FormatInt(valueInDecimal64, int(base))
+
+		return result, nil
 	}
 
-	return int32(result), nil
+	return "", fmt.Errorf("Number %d is not valid for base %d", n.Value, n.Base)
 }
 
 func (n Number) toSlice() []int32 {
@@ -121,4 +65,59 @@ func (n Number) toSlice() []int32 {
 	}
 
 	return reverseSlice(result)
+}
+
+func jimAndJokes(inputs [][]int32) int32 {
+	dates := NewDates(inputs)
+
+	count := jokesCount(dates)
+
+	return count
+}
+
+func jokesCount(dates []Number) int32 {
+	var count int32
+	// count = 1
+
+	for i := 0; i < len(dates)-1; i++ {
+		currentDate := dates[i]
+
+		if !currentDate.IsValid() {
+			continue
+		}
+
+		for j := i + 1; j <= len(dates)-1; j++ {
+			nextDate := dates[j]
+
+			current, err := currentDate.ConvertToBase(dates[j].Base)
+			if err != nil {
+				continue
+			}
+
+			if current == strconv.Itoa(int(nextDate.Value)) {
+				count++
+			}
+		}
+	}
+
+	return count
+}
+
+func reverseSlice(s []int32) []int32 {
+	for i := 0; i < len(s)/2; i++ {
+		j := len(s) - i - 1
+		s[i], s[j] = s[j], s[i]
+	}
+
+	return s
+}
+
+func NewDates(dates [][]int32) []Number {
+	var result []Number
+
+	for _, date := range dates {
+		result = append(result, Number{Value: date[1], Base: date[0]})
+	}
+
+	return result
 }
