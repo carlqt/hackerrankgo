@@ -6,32 +6,6 @@ type Number struct {
 	DecimalValue int32
 }
 
-func (n Number) IsValid() bool {
-	tens := n.Value / 10
-	ones := n.Value % 10
-
-	if tens >= n.Base || ones >= n.Base {
-		return false
-	}
-
-	return true
-}
-
-func (n *Number) setDecimalValue() {
-	n.DecimalValue = n.ValueInDecimal()
-}
-
-func (n Number) ValueInDecimal() int32 {
-	if n.Base == 10 {
-		return n.Value
-	}
-
-	tens := n.Value / 10 * n.Base
-	ones := n.Value % 10
-
-	return tens + ones
-}
-
 func jokesCount(dates []Number) int64 {
 	var count int64
 
@@ -50,17 +24,42 @@ func jokesCount(dates []Number) int64 {
 	return count
 }
 
+func ValueInDecimal(val int32, base int32) int32 {
+	if base == 10 {
+		return val
+	}
+
+	tens := val / 10 * base
+	ones := val % 10
+
+	return tens + ones
+}
+
+func isValid(val int32, base int32) bool {
+	tens := val / 10
+	ones := val % 10
+
+	if tens >= base || ones >= base {
+		return false
+	}
+
+	return true
+}
+
 func NewDates(dates [][]int32) []Number {
 	var result []Number
 
 	for _, date := range dates {
-		number := Number{
-			Value: date[1],
-			Base:  date[0],
-		}
+		val := date[1]
+		base := date[0]
 
-		if number.IsValid() {
-			number.setDecimalValue()
+		if isValid(val, base) {
+			number := Number{
+				Value:        val,
+				Base:         base,
+				DecimalValue: ValueInDecimal(val, base),
+			}
+
 			result = append(result, number)
 		}
 	}
