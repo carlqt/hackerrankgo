@@ -2,6 +2,7 @@ package hackerrankgo
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"os"
 	"strconv"
@@ -12,6 +13,8 @@ import (
 )
 
 func TestJimAndJokes(t *testing.T) {
+	var msg string
+
 	tests := []struct {
 		input  [][]int32
 		output int32
@@ -32,7 +35,11 @@ func TestJimAndJokes(t *testing.T) {
 	for _, tt := range tests {
 		actual := jimAndJokes(tt.input)
 
-		assert.Equal(t, tt.output, actual)
+		if tt.output != actual {
+			msg = fmt.Sprintf("There was a problem with the input %v", tt.input)
+		}
+
+		assert.Equal(t, tt.output, actual, msg)
 	}
 
 	t.Run("from file", func(t *testing.T) {

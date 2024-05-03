@@ -27,11 +27,10 @@ func (n Number) ValueInDecimal() int32 {
 		return n.Value
 	}
 
-	strValue := strconv.Itoa(int(n.Value))
+	tens := n.Value / 10 * n.Base
+	ones := n.Value % 10
 
-	result, _ := strconv.ParseInt(strValue, int(n.Base), 32)
-
-	return int32(result)
+	return tens + ones
 }
 
 func (n Number) ConvertToBase(base int32) (string, error) {
@@ -60,19 +59,23 @@ func jokesCount(dates []Number) int32 {
 	for i := 0; i < len(dates)-1; i++ {
 		currentDate := dates[i]
 
-		if !currentDate.IsValid() {
+		if !currentDate.IsValid() || currentDate.Base > 12 {
 			continue
 		}
 
 		for j := i + 1; j <= len(dates)-1; j++ {
 			nextDate := dates[j]
 
-			current, err := currentDate.ConvertToBase(dates[j].Base)
-			if err != nil {
+			if !nextDate.IsValid() || nextDate.Base > 12 {
 				continue
 			}
 
-			if current == strconv.Itoa(int(nextDate.Value)) {
+			// current, err := currentDate.ConvertToBase(dates[j].Base)
+			// if err != nil {
+			// 	continue
+			// }
+
+			if currentDate.ValueInDecimal() == nextDate.ValueInDecimal() {
 				count++
 			}
 		}
