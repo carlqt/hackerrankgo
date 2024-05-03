@@ -32,20 +32,11 @@ func (n Number) ValueInDecimal() int32 {
 	return tens + ones
 }
 
-func jimAndJokes(inputs [][]int32) int32 {
-	dates := NewDates(inputs)
-
-	count := jokesCount(dates)
-
-	return count
-}
-
-func jokesCount(dates []Number) int32 {
-	var count int32
+func jokesCount(dates []Number) int64 {
+	var count int64
 
 	for i := 0; i < len(dates)-1; i++ {
 		currentDate := dates[i]
-		// currentDateInDecimal := currentDate.ValueInDecimal()
 
 		for j := i + 1; j <= len(dates)-1; j++ {
 			nextDate := dates[j]
@@ -75,4 +66,12 @@ func NewDates(dates [][]int32) []Number {
 	}
 
 	return result
+}
+
+func jimAndJokes(inputs [][]int32) int64 {
+	dates := NewDates(inputs)
+
+	count := jokesCount(dates)
+
+	return count
 }
