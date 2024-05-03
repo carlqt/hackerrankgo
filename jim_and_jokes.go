@@ -1,8 +1,9 @@
 package hackerrankgo
 
 type Number struct {
-	Value int32
-	Base  int32
+	Value        int32
+	Base         int32
+	DecimalValue int32
 }
 
 func (n Number) IsValid() bool {
@@ -14,6 +15,10 @@ func (n Number) IsValid() bool {
 	}
 
 	return true
+}
+
+func (n *Number) setDecimalValue() {
+	n.DecimalValue = n.ValueInDecimal()
 }
 
 func (n Number) ValueInDecimal() int32 {
@@ -40,12 +45,12 @@ func jokesCount(dates []Number) int32 {
 
 	for i := 0; i < len(dates)-1; i++ {
 		currentDate := dates[i]
-		currentDateInDecimal := currentDate.ValueInDecimal()
+		// currentDateInDecimal := currentDate.ValueInDecimal()
 
 		for j := i + 1; j <= len(dates)-1; j++ {
 			nextDate := dates[j]
 
-			if currentDateInDecimal == nextDate.ValueInDecimal() {
+			if currentDate.DecimalValue == nextDate.DecimalValue {
 				count++
 			}
 		}
@@ -58,10 +63,14 @@ func NewDates(dates [][]int32) []Number {
 	var result []Number
 
 	for _, date := range dates {
-		number := Number{Value: date[1], Base: date[0]}
+		number := Number{
+			Value: date[1],
+			Base:  date[0],
+		}
 
 		if number.IsValid() {
-			result = append(result, Number{Value: date[1], Base: date[0]})
+			number.setDecimalValue()
+			result = append(result, number)
 		}
 	}
 
