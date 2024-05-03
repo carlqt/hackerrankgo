@@ -11,27 +11,15 @@ type Number struct {
 }
 
 func (n Number) IsValid() bool {
-	numSlice := n.toSlice()
+	for i := n.Value; i > 0; i = i / 10 {
+		r := n.Value % 10
 
-	for _, num := range numSlice {
-		if num >= n.Base {
+		if r >= n.Base {
 			return false
 		}
 	}
 
 	return true
-}
-
-func (n Number) BaseValue() int32 {
-	baseN := strconv.FormatInt(int64(n.Value), int(n.Base))
-
-	// convert string to int32
-	result, err := strconv.ParseInt(baseN, int(n.Base), 32)
-	if err != nil {
-		return 0
-	}
-
-	return int32(result)
 }
 
 func (n Number) ValueInDecimal() int32 {
@@ -55,16 +43,6 @@ func (n Number) ConvertToBase(base int32) (string, error) {
 	}
 
 	return "", fmt.Errorf("Number %d is not valid for base %d", n.Value, n.Base)
-}
-
-func (n Number) toSlice() []int32 {
-	var result []int32
-
-	for i := n.Value; i > 0; i = i / 10 {
-		result = append(result, n.Value%10)
-	}
-
-	return reverseSlice(result)
 }
 
 func jimAndJokes(inputs [][]int32) int32 {
@@ -101,15 +79,6 @@ func jokesCount(dates []Number) int32 {
 	}
 
 	return count
-}
-
-func reverseSlice(s []int32) []int32 {
-	for i := 0; i < len(s)/2; i++ {
-		j := len(s) - i - 1
-		s[i], s[j] = s[j], s[i]
-	}
-
-	return s
 }
 
 func NewDates(dates [][]int32) []Number {
