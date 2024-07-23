@@ -1,183 +1,130 @@
 package hackerrankgo
 
-import (
-	"fmt"
-	"log"
-	"slices"
-)
-
-type Grid struct {
-	Visited []point
-	Matrix  [][]int32
-}
-
-func (g *Grid) get(x, y int32) (int32, error) {
-	if y < 0 || int(y) >= len(g.Matrix) {
-		return 0, fmt.Errorf("index out of bounds for Y: x=%d y=%d", x, y)
-	}
-
-	if x < 0 || int(x) >= len(g.Matrix[0]) {
-		return 0, fmt.Errorf("index out of bounds for X: x=%d y=%d", x, y)
-	}
-
-	return g.Matrix[y][x], nil
-}
-
-func (g *Grid) visited(x, y int32) bool {
-	p := point{x, y}
-	return slices.Contains(g.Visited, p)
-}
-
-type point struct {
+type Cell struct {
 	y, x int32
 }
 
-func ConnectedCell(matrix [][]int32) int32 {
-	var area int32
+type Grid [][]int32
 
-	grid := Grid{
-		Matrix: matrix,
+func (g Grid) get(x, y int32) int32 {
+	if y < 0 || int(y) >= len(g) {
+		return -1
 	}
 
-	// Create the grid base on the matrix
-	// 1,1,0,0
-	// 0,1,1,0
-	// 0,0,1,0
-	// 1,0,0,0
-	for i := range grid.Matrix {
-		for i2 := range grid.Matrix[i] {
-			x, err := grid.get(int32(i2), int32(i))
-			if err != nil {
-				log.Fatal(err)
-			}
+	if x < 0 || int(x) >= len(g) {
+		return -1
+	}
 
-			if x == 0 {
+	return g[y][x]
+}
+
+func connectedCell(matrix [][]int32) int32 {
+	// Stores the cells visited in BFS so we can skip
+	var visitedCells []Cell
+	var area int
+
+	grid := Grid(matrix)
+
+	for i, y := range grid {
+		for i2, x := range y {
+			cell := Cell{int32(i), int32(i2)}
+
+			if x <= 0 {
 				continue
 			}
 
-			if grid.visited(int32(i2), int32(i)) {
+			if Contains(visitedCells, cell) {
 				continue
 			}
 
-			start := point{int32(i2), int32(i)}
-			result := bfs(start, &grid)
-			if result > area {
-				area = result
+			filledCells := bfs(cell, grid)
+			if len(filledCells) > area {
+				area = len(filledCells)
 			}
+
+			visitedCells = append(visitedCells, filledCells...)
 		}
 	}
 
-	// [1][2]
-	return area
+	return int32(area)
 }
 
-func bfs(start point, grid *Grid) (area int32) {
-	var visited []point
-	var queue []point
-	var current point
-
-	x, _ := grid.get(start.x, start.y)
-	if x == 0 {
-		return
-	}
+// Return all the filled cells
+func bfs(start Cell, grid Grid) []Cell {
+	var visited []Cell
+	var queue []Cell
+	var current Cell
 
 	queue = append(queue, start)
 
-	// Loop until the queue is empty
-	// From the starting coordinate
-	// get all adjacent coordinates and add them to the queue
-	// Add the current coordinate to visited
 	for len(queue) > 0 {
-		// Remove the first element from the queue
 		current, queue = pop(queue)
 		visited = append(visited, current)
 
-		// Get the adjacent coordinates
-		// avoid panicing for index out of bounds
-		// add the adjacent coordinates to the queue
 		adjacentCells := adjacentFilledCell(current, grid)
 		for _, a := range adjacentCells {
-			if !slices.Contains(visited, a) && !slices.Contains(queue, a) {
+			if !Contains(visited, a) && !Contains(queue, a) {
 				queue = append(queue, a)
 			}
 		}
 	}
 
-	// Add visited to grid.visited
-	for _, v := range visited {
-		if !slices.Contains(grid.Visited, v) {
-			grid.Visited = append(grid.Visited, v)
-		}
-	}
-
-	return int32(len(visited))
+	return visited
 }
 
-func pop(queue []point) (point, []point) {
+func pop(queue []Cell) (Cell, []Cell) {
+	var result []Cell
+
 	v := queue[0]
-	result := slices.Delete(queue, 0, 1)
+	result = queue[1:]
 
 	return v, result
 }
 
+func Contains(Cells []Cell, p Cell) bool {
+	for _, pp := range Cells {
+		if pp.x == p.x && pp.y == p.y {
+			return true
+		}
+	}
+
+	return false
+}
+
 // This should not return the visited nodes
-func adjacentFilledCell(start point, grid *Grid) []point {
-	var adjacentFilled []point
+func adjacentFilledCell(start Cell, grid Grid) []Cell {
+	var adjacentFilled []Cell
 
-	// Check coordinate north of starting point (-1, 0)
-	p := point{y: start.y - 1, x: start.x}
-	r, err := grid.get(p.x, p.y)
-	if err == nil && r == 1 {
-		adjacentFilled = append(adjacentFilled, p)
+	north := Cell{-1, 0}
+	northEast := Cell{-1, 1}
+	east := Cell{0, 1}
+	southEast := Cell{1, 1}
+	south := Cell{1, 0}
+	southWest := Cell{1, -1}
+	west := Cell{0, -1}
+	northWest := Cell{-1, -1}
+
+	orientations := []Cell{
+		north,
+		northEast,
+		east,
+		southEast,
+		south,
+		southWest,
+		west,
+		northWest,
 	}
 
-	// Check coordinate north east of starting point (-1, +1)
-	p = point{y: start.y - 1, x: start.x + 1}
-	r, err = grid.get(p.x, p.y)
-	if err == nil && r == 1 {
-		adjacentFilled = append(adjacentFilled, p)
-	}
+	for _, p := range orientations {
+		adjacentCell := Cell{
+			y: start.y + p.y,
+			x: start.x + p.x,
+		}
 
-	// Check coordinate east of starting point (0, +1)
-	p = point{y: start.y, x: start.x + 1}
-	r, err = grid.get(p.x, p.y)
-	if err == nil && r == 1 {
-		adjacentFilled = append(adjacentFilled, p)
-	}
-
-	// Check coordinate south-east of starting point (+1, +1)
-	p = point{y: start.y + 1, x: start.x + 1}
-	r, err = grid.get(p.x, p.y)
-	if err == nil && r == 1 {
-		adjacentFilled = append(adjacentFilled, p)
-	}
-
-	// Check coordinate south of starting point (+1, 0)
-	p = point{y: start.y + 1, x: start.x}
-	r, err = grid.get(p.x, p.y)
-	if err == nil && r == 1 {
-		adjacentFilled = append(adjacentFilled, p)
-	}
-
-	// Check coordinate south-west of starting point (+1, -1)
-	p = point{y: start.y + 1, x: start.x - 1}
-	r, err = grid.get(p.x, p.y)
-	if err == nil && r == 1 {
-		adjacentFilled = append(adjacentFilled, p)
-	}
-
-	// Check coordinate west of starting point (0, -1)
-	p = point{y: start.y, x: start.x - 1}
-	r, err = grid.get(p.x, p.y)
-	if err == nil && r == 1 {
-		adjacentFilled = append(adjacentFilled, p)
-	}
-
-	// Check coordinate north-west of starting point (-1, -1)
-	p = point{y: start.y - 1, x: start.x - 1}
-	r, err = grid.get(p.x, p.y)
-	if err == nil && r == 1 {
-		adjacentFilled = append(adjacentFilled, p)
+		value := grid.get(adjacentCell.x, adjacentCell.y)
+		if value == 1 {
+			adjacentFilled = append(adjacentFilled, adjacentCell)
+		}
 	}
 
 	return adjacentFilled
