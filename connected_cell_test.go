@@ -23,9 +23,43 @@ func TestConnectedCell(t *testing.T) {
 			want:  5,
 		},
 	}
+
 	for _, tt := range tests {
 		actual := ConnectedCell(tt.input)
 
 		assert.Equal(t, tt.want, actual)
 	}
+}
+
+func TestAdjacentFilledCell(t *testing.T) {
+	type adjacentInput struct {
+		grid  Grid
+		start point
+	}
+
+	tests := []struct {
+		expected []point
+		input    adjacentInput
+	}{
+		{
+			expected: []point{{0, 0}, {0, 1}, {0, 2}, {1, 0}, {1, 2}, {2, 0}, {2, 1}, {2, 2}},
+			input: adjacentInput{
+				start: point{1, 1},
+				grid:  Grid{Matrix: [][]int32{{1, 1, 1}, {1, 1, 1}, {1, 1, 1}}},
+			},
+		},
+		{
+			expected: []point{{0, 0}, {0, 2}, {1, 0}, {1, 2}, {2, 0}, {2, 2}},
+			input: adjacentInput{
+				start: point{1, 1},
+				grid:  Grid{Matrix: [][]int32{{1, 0, 1}, {1, 1, 1}, {1, 0, 1}}},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		actual := adjacentFilledCell(tt.input.start, &tt.input.grid)
+		assert.ElementsMatch(t, tt.expected, actual)
+	}
+
 }
