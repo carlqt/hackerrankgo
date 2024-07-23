@@ -58,7 +58,7 @@ func TestAdjacentFilledCell(t *testing.T) {
 		{
 			expected: []point{{1, 1}, {0, 1}, {2, 2}},
 			input: adjacentInput{
-				start: point{1, 2},
+				start: point{y: 1, x: 2},
 				grid:  Grid{Matrix: [][]int32{{1, 1, 0, 0}, {0, 1, 1, 0}, {0, 0, 1, 0}, {1, 0, 0, 0}}},
 			},
 		},
