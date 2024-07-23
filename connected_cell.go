@@ -1,7 +1,8 @@
 package hackerrankgo
 
 import (
-	"errors"
+	"fmt"
+	"log"
 	"slices"
 )
 
@@ -11,12 +12,12 @@ type Grid struct {
 }
 
 func (g *Grid) get(x, y int32) (int32, error) {
-	if y < 0 || int(y) >= len(g.Matrix)-1 {
-		return 0, errors.New("out of bounds")
+	if y < 0 || int(y) >= len(g.Matrix) {
+		return 0, fmt.Errorf("index out of bounds for Y: x=%d y=%d", x, y)
 	}
 
-	if x < 0 || int(x) >= len(g.Matrix[0])-1 {
-		return 0, errors.New("out of bounds")
+	if x < 0 || int(x) >= len(g.Matrix[0]) {
+		return 0, fmt.Errorf("index out of bounds for X: x=%d y=%d", x, y)
 	}
 
 	return g.Matrix[y][x], nil
@@ -42,14 +43,14 @@ func ConnectedCell(matrix [][]int32) int32 {
 	// 0,0,1,0
 	// 1,0,0,0
 	for i := range grid.Matrix {
-		for i2, x := range grid.Matrix[i] {
-			if x == 0 {
-				continue
+		for i2 := range grid.Matrix[i] {
+			x, err := grid.get(int32(i2), int32(i))
+			if err != nil {
+				log.Fatal(err)
 			}
 
-			v, err := grid.get(int32(i2), int32(i))
-			if err != nil || v == 0 {
-				panic(err)
+			if x == 0 {
+				continue
 			}
 
 			if grid.visited(int32(i2), int32(i)) {
@@ -71,30 +72,29 @@ func ConnectedCell(matrix [][]int32) int32 {
 func bfs(start point, grid *Grid) (area int32) {
 	var visited []point
 	var queue []point
+	var current point
 	queue = append(queue, start)
 
 	// Loop until the queue is empty
 	// From the starting coordinate
 	// get all adjacent coordinates and add them to the queue
 	// Add the current coordinate to visited
-	for {
+	for len(queue) > 0 {
 		// Remove the first element from the queue
-		current, queue := pop(queue)
+		current, queue = pop(queue)
 		visited = append(visited, current)
 
 		// Get the adjacent coordinates
 		// avoid panicing for index out of bounds
 		// add the adjacent coordinates to the queue
 		adjacentCells := adjacentFilledCell(current, grid)
+		fmt.Printf("current=%d\nadjacent=%v\n", current, adjacentCells)
 		for _, a := range adjacentCells {
-			if !slices.Contains(visited, a) || !slices.Contains(queue, a) {
+			if !slices.Contains(visited, a) && !slices.Contains(queue, a) {
 				queue = append(queue, a)
 			}
 		}
-
-		if len(queue) == 0 {
-			break
-		}
+		// fmt.Printf("queue: %d", len(queue))
 	}
 
 	// Add visited to grid.visited
