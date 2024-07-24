@@ -32,7 +32,7 @@ func TestConnectedCellFile(t *testing.T) {
 	}
 
 	result := connectedCell(inputs)
-	assert.Equal(t, int32(5), result)
+	assert.Equal(t, int32(9), result)
 }
 
 func TestConnectedCell(t *testing.T) {

@@ -11,7 +11,7 @@ func (g Grid) get(x, y int32) int32 {
 		return -1
 	}
 
-	if x < 0 || int(x) >= len(g) {
+	if x < 0 || int(x) >= len(g[0]) {
 		return -1
 	}
 
