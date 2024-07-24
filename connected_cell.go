@@ -19,7 +19,6 @@ func (g Grid) get(x, y int32) int32 {
 }
 
 func connectedCell(matrix [][]int32) int32 {
-	// Stores the cells visited in BFS so we can skip
 	var visitedCells []Cell
 	var area int
 
@@ -49,20 +48,17 @@ func connectedCell(matrix [][]int32) int32 {
 	return int32(area)
 }
 
-// Return all the filled cells
 func bfs(start Cell, grid Grid) []Cell {
 	var visited []Cell
 	var queue []Cell
-	var current Cell
 
 	queue = append(queue, start)
 
 	for len(queue) > 0 {
-		current, queue = pop(queue)
+		current := pop(&queue)
 		visited = append(visited, current)
 
-		adjacentCells := adjacentFilledCell(current, grid)
-		for _, a := range adjacentCells {
+		for _, a := range adjacentFilledCell(current, grid) {
 			if !Contains(visited, a) && !Contains(queue, a) {
 				queue = append(queue, a)
 			}
@@ -72,13 +68,11 @@ func bfs(start Cell, grid Grid) []Cell {
 	return visited
 }
 
-func pop(queue []Cell) (Cell, []Cell) {
-	var result []Cell
+func pop(queue *[]Cell) Cell {
+	v := (*queue)[0]
+	*queue = (*queue)[1:]
 
-	v := queue[0]
-	result = queue[1:]
-
-	return v, result
+	return v
 }
 
 func Contains(Cells []Cell, p Cell) bool {
@@ -91,7 +85,6 @@ func Contains(Cells []Cell, p Cell) bool {
 	return false
 }
 
-// This should not return the visited nodes
 func adjacentFilledCell(start Cell, grid Grid) []Cell {
 	var adjacentFilled []Cell
 

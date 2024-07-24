@@ -153,10 +153,10 @@ func TestPop(t *testing.T) {
 		{5, 2},
 	}
 
-	result, q := pop(queue)
+	result := pop(&queue)
 
 	assert.Equal(t, Cell{1, 0}, result)
-	assert.ElementsMatch(t, []Cell{{2, 2}, {5, 2}}, q)
+	assert.ElementsMatch(t, []Cell{{2, 2}, {5, 2}}, queue)
 }
 
 func prettyPrint(input [][]int32) {
