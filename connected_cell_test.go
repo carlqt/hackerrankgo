@@ -1,10 +1,39 @@
 package hackerrankgo
 
 import (
+	"bufio"
+	"fmt"
+	"os"
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
+
+func TestConnectedCellFile(t *testing.T) {
+	file, err := os.Open("connected_cell_input.txt")
+	if err != nil {
+		t.Fatal("cannot open file")
+	}
+	defer file.Close()
+
+	var inputs [][]int32
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		rows := make([]int32, 1)
+		line := scanner.Text()
+		for _, r := range line {
+			t, _ := strconv.Atoi(string(r))
+			rows = append(rows, int32(t))
+		}
+
+		inputs = append(inputs, rows)
+	}
+
+	result := connectedCell(inputs)
+	assert.Equal(t, int32(5), result)
+}
 
 func TestConnectedCell(t *testing.T) {
 	tests := []struct {
@@ -128,4 +157,10 @@ func TestPop(t *testing.T) {
 
 	assert.Equal(t, Cell{1, 0}, result)
 	assert.ElementsMatch(t, []Cell{{2, 2}, {5, 2}}, q)
+}
+
+func prettyPrint(input [][]int32) {
+	for _, i := range input {
+		fmt.Println(i)
+	}
 }
