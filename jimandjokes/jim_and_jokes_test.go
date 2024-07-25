@@ -1,4 +1,4 @@
-package hackerrankgo
+package jimandjokes
 
 import (
 	"bufio"

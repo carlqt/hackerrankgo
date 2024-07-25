@@ -1,4 +1,4 @@
-package hackerrankgo
+package jimandjokes
 
 type Number struct {
 	Value        int32
