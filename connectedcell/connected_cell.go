@@ -88,24 +88,15 @@ func Contains(Cells []Cell, p Cell) bool {
 func adjacentFilledCell(start Cell, grid Grid) []Cell {
 	var adjacentFilled []Cell
 
-	north := Cell{-1, 0}
-	northEast := Cell{-1, 1}
-	east := Cell{0, 1}
-	southEast := Cell{1, 1}
-	south := Cell{1, 0}
-	southWest := Cell{1, -1}
-	west := Cell{0, -1}
-	northWest := Cell{-1, -1}
-
 	orientations := []Cell{
-		north,
-		northEast,
-		east,
-		southEast,
-		south,
-		southWest,
-		west,
-		northWest,
+		{-1, 0},
+		{-1, 1},
+		{0, 1},
+		{1, 1},
+		{1, 0},
+		{1, -1},
+		{0, -1},
+		{-1, -1},
 	}
 
 	for _, p := range orientations {
@@ -114,8 +105,7 @@ func adjacentFilledCell(start Cell, grid Grid) []Cell {
 			x: start.x + p.x,
 		}
 
-		value := grid.get(adjacentCell.x, adjacentCell.y)
-		if value == 1 {
+		if grid.get(adjacentCell.x, adjacentCell.y) == 1 {
 			adjacentFilled = append(adjacentFilled, adjacentCell)
 		}
 	}
